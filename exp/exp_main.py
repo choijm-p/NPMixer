@@ -10,7 +10,6 @@ import torch.nn as nn
 from torch import optim
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 from data_provider.data_factory import data_provider
-from data_provider.cycle_data_factory import data_provider as cycle_provider
 from exp.exp_basic import Exp_Basic
 from models import NPMixer
 from utils.tools import EarlyStopping, adjust_learning_rate, visual, test_params_flop
