@@ -48,24 +48,21 @@ class Exp_Main(Exp_Basic):
         criterion = nn.MSELoss()
         return criterion
 
-    def vali(self, vali_data = None, vali_loader= None, criterion = None, vali_iterator = None):
+    def vali(self, vali_data=None, vali_loader=None, criterion=None, vali_iterator=None):
         total_loss = []
         total_loss_mae = []
         self.model.eval()
-        vali_steps = self.args.seq_len
-        iter_count = 0
         criterion_mae = nn.L1Loss()
-        
-        vali_data, vali_loader = self._get_data(flag='vali')
-        
-        with torch.no_grad():
-            # dataloader produces: x, y, x_mark, y_mark
-            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(vali_loader):
 
+        # Only create val loader if no loader was passed.
+        if vali_loader is None:
+            vali_data, vali_loader = self._get_data(flag='val')
+
+        with torch.no_grad():
+            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(vali_loader):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float()
 
-                # NPMixer does not use x_mark, y_mark
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         outputs = self.model(batch_x)
@@ -79,15 +76,12 @@ class Exp_Main(Exp_Basic):
                 pred = outputs.detach().cpu()
                 true = batch_y.detach().cpu()
 
-                total_loss.append(criterion(pred, true))
-                total_loss_mae.append(criterion_mae(pred, true))
+                total_loss.append(criterion(pred, true).item())
+                total_loss_mae.append(criterion_mae(pred, true).item())
 
-        if len(total_loss_mae) > 0:
-            total_loss_mae = np.average(total_loss_mae)
-        else:
-            total_loss_mae = 0
+        total_loss_mae = float(np.average(total_loss_mae)) if len(total_loss_mae) > 0 else 0.0
+        total_loss = float(np.average(total_loss)) if len(total_loss) > 0 else 0.0
 
-        total_loss = np.average(total_loss)
         self.model.train()
         return total_loss, total_loss_mae
 
