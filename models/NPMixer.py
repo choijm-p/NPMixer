@@ -87,7 +87,7 @@ class LearnableISWT(nn.Module):
         dilation = 2 ** (self.level - 1)
 
         for i in range(self.level):
-            detail_coeff = detail_coeffs[:, :, self.level - 1 - i, :]
+            detail_coeff = detail_coeffs[:, :, i, :]
 
             padding = dilation * (self.kernel_size - 1)
             padding_left = (dilation * self.kernel_size) // 2

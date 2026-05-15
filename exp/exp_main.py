@@ -56,7 +56,7 @@ class Exp_Main(Exp_Basic):
         iter_count = 0
         criterion_mae = nn.L1Loss()
         
-        vali_data, vali_loader = self._get_data(flag='test')
+        vali_data, vali_loader = self._get_data(flag='vali')
         
         with torch.no_grad():
             # dataloader produces: x, y, x_mark, y_mark
